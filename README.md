@@ -1,6 +1,6 @@
 # Weather App 🌤️
 
-![Weather App Screenshot](/weather-app/src/screenshot.png)
+![Weather App Screenshot](./screenshot.png)
 
 ## Overview
 
