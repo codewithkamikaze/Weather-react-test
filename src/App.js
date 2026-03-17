@@ -1,5 +1,4 @@
 import "./App.css";
-import Test from "./Test";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 
 // react
@@ -18,7 +17,6 @@ import axios from "axios";
 import moment from "moment";
 import "moment/min/locales"; //for change language
 import { useTranslation } from "react-i18next";
-import { dir } from "i18next";
 
 moment.locale("ar"); //pack up which language as you want
 
