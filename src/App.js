@@ -9,89 +9,110 @@ import Container from "@mui/material/Container";
 import Typography from "@mui/material/Typography";
 import CloudIcon from "@mui/icons-material/Cloud";
 import Button from "@mui/material/Button";
+import CircularProgress from "@mui/material/CircularProgress";
 
 // Axios
-import axios from "axios";
+// import axios from "axios";
 
 // momentjs
 import moment from "moment";
 import "moment/min/locales"; //for change language
 import { useTranslation } from "react-i18next";
 
+// REDUX
+import { useSelector, useDispatch } from "react-redux";
+// import { changeResult } from "./weatherApiSlice";
+import { fetchWeather } from "./weatherApiSlice";
+
 moment.locale("ar"); //pack up which language as you want
 
-let cancelAxios = null;
 function App() {
+  //Redux code
+  const dispatch = useDispatch();
+
+  const isLoading = useSelector((state) => {
+    return state.weather.isLoading;
+  });
+  const temp = useSelector((state) => {
+    return state.weather.weather;
+  });
+
   const { t, i18n } = useTranslation();
 
   // States
   const [dateAndTime, setDateAndTime] = useState("");
-  const [temp, setTemp] = useState({
-    number: null,
-    description: "",
-    min: null,
-    max: null,
-    icon: null,
-  });
+  // redux now do it
+  // const [temp, setTemp] = useState({
+  //   number: null,
+  //   description: "",
+  //   min: null,
+  //   max: null,
+  //   icon: null,
+  // });
 
-  const [locale, setLocal] = useState("en");
+  const [locale, setLocal] = useState("ar");
 
   const direction = locale === "ar" ? "rtl" : "ltr";
 
   // Event Handler
   function handleLanguageClick() {
-    if (locale === "en") {
-      setLocal("ar");
-      i18n.changeLanguage("ar");
-      moment.locale("ar");
-    } else {
+    if (locale === "ar") {
       setLocal("en");
       i18n.changeLanguage("en");
       moment.locale("en");
+    } else {
+      setLocal("ar");
+      i18n.changeLanguage("ar");
+      moment.locale("ar");
     }
     setDateAndTime(moment().format("MMMM Do YYYY, h:mm:ss a"));
   }
 
   useEffect(() => {
-    i18n.changeLanguage("ar");
-  }, []);
+    // roll Redux
+    dispatch(fetchWeather());
+
+    i18n.changeLanguage(locale);
+  }, [dispatch, i18n, locale]);
 
   useEffect(() => {
     setDateAndTime(moment().format("MMMM Do YYYY, h:mm:ss a"));
 
-    axios
-      .get(
-        "https://api.openweathermap.org/data/2.5/weather?lat=36.20&lon=37.16&appid=a1334b5b9736578a98d48bfe4c7ec609",
-        {
-          cancelToken: new axios.CancelToken((c) => {
-            cancelAxios = c;
-          }),
-        },
-      )
-      .then(function (response) {
-        // handle success
-        const responseTemp = Math.round(response.data.main.temp - 272.15);
-        const min = Math.round(response.data.main.temp_min - 272.15);
-        const max = Math.round(response.data.main.temp_max - 272.15);
-        const description = response.data.weather[0].description;
-        const responseIcon = response.data.weather[0].icon;
+    //======================
+    //now redux rool all this
+    // axios
+    //   .get(
+    //     "https://api.openweathermap.org/data/2.5/weather?lat=36.20&lon=37.16&appid=a1334b5b9736578a98d48bfe4c7ec609",
+    //     {
+    //       cancelToken: new axios.CancelToken((c) => {
+    //         cancelAxios = c;
+    //       }),
+    //     },
+    //   )
+    //   .then(function (response) {
+    //     // handle success
+    //     const responseTemp = Math.round(response.data.main.temp - 272.15);
+    //     const min = Math.round(response.data.main.temp_min - 272.15);
+    //     const max = Math.round(response.data.main.temp_max - 272.15);
+    //     const description = response.data.weather[0].description;
+    //     const responseIcon = response.data.weather[0].icon;
 
-        setTemp({
-          number: responseTemp,
-          min: min,
-          max: max,
-          description: description,
-          icon: `https://openweathermap.org/img/wn/${responseIcon}@2x.png`,
-        });
-      })
-      .catch(function (error) {
-        // handle error
-        console.log(error);
-      });
-    return () => {
-      console.log("Canceling");
-      if (cancelAxios) cancelAxios();
-    };
+    //     setTemp({
+    //       number: responseTemp,
+    //       min: min,
+    //       max: max,
+    //       description: description,
+    //       icon: `https://openweathermap.org/img/wn/${responseIcon}@2x.png`,
+    //     });
+    //   })
+    //   .catch(function (error) {
+    //     // handle error
+    //     console.log(error);
+    //   });
+    // return () => {
+    //   console.log("Canceling");
+    //   if (cancelAxios) cancelAxios();
+    // };
   }, []);
   const theme = createTheme({
     // typography: { fontFamily: ["roboto"] },
@@ -152,6 +173,11 @@ function App() {
                       alignItems: "center",
                     }}
                   >
+                    {isLoading ? (
+                      <CircularProgress style={{ color: "white" }} />
+                    ) : (
+                      ""
+                    )}
                     <Typography variant="h1" style={{ textAlign: "right" }}>
                       {temp.number}
                     </Typography>
